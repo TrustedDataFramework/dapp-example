@@ -1,0 +1,179 @@
+[
+  {
+    "name": "init",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "ownerAddress"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "saveDonor",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "string",
+        "name": "name"
+      },
+      {
+        "type": "string",
+        "name": "content"
+      },
+      {
+        "type": "u64",
+        "name": "quantity"
+      },
+      {
+        "type": "string",
+        "name": "info"
+      },
+      {
+        "type": "address",
+        "name": "address"
+      },
+      {
+        "type": "address",
+        "name": "get"
+      },
+      {
+        "type": "string",
+        "name": "donor"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "saveConfirm",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "getDonorEncoded",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "bytes"
+      }
+    ]
+  },
+  {
+    "name": "getDonor",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "name": "getName",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "name": "getContent",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "name": "getQuantity",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "u64"
+      }
+    ]
+  },
+  {
+    "name": "getInfo",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "name": "getGet",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "name": "getConfirm",
+    "type": "function",
+    "inputs": [
+      {
+        "type": "bytes",
+        "name": "hash"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "bool"
+      }
+    ]
+  }
+]

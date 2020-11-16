@@ -1,15 +1,13 @@
-# vue3-scaffold
+# dapp example
 
-基于 webpack 配置的 vue3 的脚手架
+公益 DApp 样例
+
+dapp example
 
 ```sh
 npm insatll
 ```
 
 ```sh
-webpack
-```
-
-```sh
-cp index.html dist
+npm run build
 ```

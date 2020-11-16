@@ -6,28 +6,28 @@
 @import 'bootstrap/scss/utilities';
 
 #success-body {
-    height: 100vh;
-    background-image: url('@/img/welfare-beijing.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-  
-    .success-title {
-      font-size: 24px;
-      margin: 50px 0;
-    }
-    .outer > img {
-      width: 140px;
-      height: 140px;
-    }
-    .val {
-      margin-top: 30px;
-    }
-    .but-confirm {
-      padding: 10px 30px;
-    }
+  height: 100vh;
+  background-image: url('@/img/welfare-beijing.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 
-    .wid-1200{
-        text-align: center;
-    }
+  .success-title {
+    font-size: 24px;
+    margin: 50px 0;
+  }
+  .outer > img {
+    width: 140px;
+    height: 140px;
+  }
+  .val {
+    margin-top: 30px;
+  }
+  .but-confirm {
+    padding: 10px 30px;
+  }
+
+  .wid-1200 {
+    text-align: center;
+  }
 }

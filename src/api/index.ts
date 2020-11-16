@@ -1,6 +1,6 @@
 import tool = require('@salaku/js-sdk')
 import { rlp, bin2hex, hex2bin } from '@salaku/js-sdk'
-import { rpc, PRIVATE_KEY, CONTRACT } from '@/api/constants'
+import { rpc, PRIVATE_KEY, CONTRACT, CROSS_PRIAVTE_KEY } from '@/api/constants'
 import axios from 'axios'
 
 async function syncNonce(
@@ -13,6 +13,23 @@ async function syncNonce(
   return bd
 }
 
+export function formatDate(d: Date, fmt: string) {
+  const o = {
+      "M+": d.getMonth() + 1,                 //月份
+      "d+": d.getDate(),                    //日
+      "h+": d.getHours(),                   //小时
+      "m+": d.getMinutes(),                 //分
+      "s+": d.getSeconds(),                 //秒
+      "q+": Math.floor((d.getMonth() + 3) / 3), //季度
+      "S": d.getMilliseconds()             //毫秒
+  };
+  if (/(y+)/.test(fmt))
+      fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+  for (let k in o)
+      if (new RegExp("(" + k + ")").test(fmt))
+          fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+  return fmt
+}
 
 export function emptyDonor(): DonorPayload {
   return {
@@ -23,7 +40,20 @@ export function emptyDonor(): DonorPayload {
     address: '',
     get: '',
     donor: '',
-    confirmed: false
+    height: null,
+    hash: '',
+    timestamp: null,
+    confirmed: false,
+    confirmHash: ''
+  }
+}
+
+export function emptyConfirm(): ConfirmPayload{
+  return {
+    description: '',
+    timestamp: null,
+    height: null,
+    hash: ''
   }
 }
 
@@ -79,6 +109,21 @@ export async function saveDonor(payload: DonorPayload): Promise<string> {
   return h
 }
 
+// 发送确认事务
+export async function saveConfirm(description: string): Promise<string> {
+  let bd = new tool.TransactionBuilder(
+    tool.constants.POA_VERSION,
+    CROSS_PRIAVTE_KEY
+  )
+  bd = await syncNonce(bd)
+  const tx = bd.buildContractCall(CONTRACT, 'saveConfirm', {
+    hash: localStorage.getItem('txHash'),
+    description: description
+  })
+  await rpc.sendAndObserve(tx, tool.TX_STATUS.INCLUDED)
+  return tx.getHash()
+}
+
 export async function getConfirm(): Promise<ConfirmPayload> {
   const d = await getDonor()
   if (!d || !d.confirmed) return null
@@ -125,11 +170,11 @@ function decodeConfirm(buf: Uint8Array): ConfirmPayload {
   return r
 }
 
-export function reset(): void{
+export function reset(): void {
   localStorage.removeItem('txHash')
 }
 
-export async function getHashByHeight(height: number): Promise<string>{
+export async function getHashByHeight(height: number): Promise<string> {
   const r = await axios.get(`/rpc/block/${height}`)
   return r.data.data.hash
 }

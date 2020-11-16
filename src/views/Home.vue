@@ -38,7 +38,11 @@
           <span class="col-sm-6">{{ tip2 }}</span>
         </div>
         <div class="text-center mt-2">
-          <button class="btn btn-outline-secondary btn-sm" id="reset" @click="reset">
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            id="reset"
+            @click="reset"
+          >
             重置
           </button>
         </div>
@@ -87,12 +91,12 @@ export default class App extends Vue {
     getDonor().then((r) => {
       if (r) {
         this.hasDonor = true
-        for(let k of Object.keys(r)){
-          if(k in this){
+        for (let k of Object.keys(r)) {
+          if (k in this) {
             this[k] = r[k]
           }
         }
-        return 
+        return
       }
       this.hasDonor = false
     })
@@ -102,7 +106,7 @@ export default class App extends Vue {
     this.tm.forEach((t) => clearInterval(t))
   }
 
-  reset(){
+  reset() {
     reset()
   }
 }

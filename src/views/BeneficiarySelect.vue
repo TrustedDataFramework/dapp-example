@@ -9,9 +9,9 @@
       <div class="safe-slogan"></div>
       <div class="safe-wrap">
         <input type="text" placeholder="请输入事务哈希值" id="txt" />
-        <div class="safe-wrap-img" id="safe-search">
+        <router-link class="safe-wrap-img" id="safe-search" to="/select-donors">
           <img src="@/img/addressee-search.png" />
-        </div>
+        </router-link>
       </div>
     </div>
   </div>

@@ -43,4 +43,3 @@ export default class Success extends Vue {
   confirm() {}
 }
 </script>
-

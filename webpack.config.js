@@ -107,7 +107,8 @@ module.exports = (env = {}) => ({
        })        
     ],
     externals: {
-        '@salaku/js-sdk': 'tdsSDK'
+        '@salaku/js-sdk': 'tdsSDK',
+        vue: 'Vue'
     },
     watchOptions: {
         ignored: /node_modules/

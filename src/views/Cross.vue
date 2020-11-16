@@ -15,13 +15,15 @@
                 <span id="height"></span>
               </div>
               <div class="select-sender-info">
-                <span>捐赠区块哈希：<span class="hash">{{ blockHash }}</span></span>
                 <span
-                  id="blockHash"
-                ></span>
+                  >捐赠区块哈希：<span class="hash">{{ blockHash }}</span></span
+                >
+                <span id="blockHash"></span>
               </div>
               <div class="select-sender-info">
-                <span>捐赠事务哈希：<span class="hash">{{ hash }}</span></span>
+                <span
+                  >捐赠事务哈希：<span class="hash">{{ hash }}</span></span
+                >
                 <span
                   id="txHash"
                   style="
@@ -68,6 +70,7 @@
                 class="box-but"
                 id="but-select-sender"
                 :disabled="disabled"
+                @click="confirm"
               >
                 {{ disabled ? '已完成存证' : '存证上链' }}
               </button>
@@ -82,7 +85,7 @@
 <script lang="ts">
 import { Vue, Options } from 'vue-class-component'
 import HeaderBar from '@/components/HeaderBar.vue'
-import { getConfirm, getDonor, getHashByHeight } from '@/api'
+import { getConfirm, getDonor, getHashByHeight, saveConfirm } from '@/api'
 
 @Options({
   components: {
@@ -108,11 +111,14 @@ export default class Cross extends Vue {
     return !this.hasDonor || this.confirmed
   }
 
-  get description(): string{
-    if(!this.content)
-      return ''
-    return '捐赠说明：' + (this.content === '口罩' ?
-                `医用口罩${this.quantity}个，按照一名医护人员20个口罩的形式安排分发${this.donor}` : `防毒面具${this.content}个，按照一名医护人员一个的形式安排分发${this.donor}`)
+  get description(): string {
+    if (!this.content) return ''
+    return (
+      '捐赠说明：' +
+      (this.content === '口罩'
+        ? `医用口罩${this.quantity}个，按照一名医护人员20个口罩的形式安排分发${this.donor}`
+        : `防毒面具${this.content}个，按照一名医护人员一个的形式安排分发${this.donor}`)
+    )
   }
 
   created() {
@@ -131,12 +137,20 @@ export default class Cross extends Vue {
       for (let k of Object.keys(r)) {
         if (k in this) this[k] = r[k]
       }
-      getHashByHeight(r.height).then(h => this.blockHash = h)
+      getHashByHeight(r.height).then((h) => (this.blockHash = h))
     })
   }
 
   confirm() {
-    
+    saveConfirm(this.description).then((h) => {
+      this.$router.push({
+        path: '/success',
+        query: {
+          txHash: h,
+          redirect: '/beneficiary-select'
+        }
+      })
+    })
   }
 }
 </script>

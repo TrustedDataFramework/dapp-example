@@ -36,6 +36,11 @@ const router = createRouter({
       path: '/success', // 成功提示
       name: 'success',
       component: () => import('@/views/Success')
+    },
+    {
+      path: '/select-donors',
+      name: 'select-donors',
+      component: () => import('@/views/SelectDonors')
     }
   ]
 })

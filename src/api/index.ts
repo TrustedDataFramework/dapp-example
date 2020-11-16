@@ -1,7 +1,7 @@
 import tool = require('@salaku/js-sdk')
 import { rlp, bin2hex, hex2bin } from '@salaku/js-sdk'
 import { rpc, PRIVATE_KEY, CONTRACT } from '@/api/constants'
-import abi from '@/contracts/welfare.abi.json'
+import axios from 'axios'
 
 async function syncNonce(
   bd: tool.TransactionBuilder
@@ -13,9 +13,6 @@ async function syncNonce(
   return bd
 }
 
-export function reset(): void {
-  localStorage.removeItem('txHash')
-}
 
 export function emptyDonor(): DonorPayload {
   return {
@@ -57,15 +54,38 @@ export interface DonorPayload {
   confirmHash?: string
 }
 
+export interface ConfirmPayload {
+  // 捐赠说明
+  description?: string
+  // 时间戳
+  timestamp?: number
+  // 区块高度
+  height?: number
+  // 事务哈希
+  hash?: string
+}
+
 // 发送合约捐赠事务
-export async function saveDonor(payload: DonorPayload) {
+export async function saveDonor(payload: DonorPayload): Promise<string> {
   let builder = new tool.TransactionBuilder(
     tool.constants.POA_VERSION,
     PRIVATE_KEY
   )
   builder = await syncNonce(builder)
   const tx = builder.buildContractCall(CONTRACT, 'saveDonor', <any>payload, 0)
-  return await rpc.sendAndObserve(tx, tool.TX_STATUS.INCLUDED)
+  await rpc.sendAndObserve(tx, tool.TX_STATUS.INCLUDED)
+  const h = tx.getHash()
+  localStorage.setItem('txHash', h)
+  return h
+}
+
+export async function getConfirm(): Promise<ConfirmPayload> {
+  const d = await getDonor()
+  if (!d || !d.confirmed) return null
+  const r = hex2bin(
+    <string>await rpc.viewContract(CONTRACT, 'getConfirmEncoded', d.confirmHash)
+  )
+  return decodeConfirm(r)
 }
 
 export async function getDonor(): Promise<DonorPayload> {
@@ -87,6 +107,29 @@ function decodeDonor(buf: Uint8Array): DonorPayload {
   u.address = bin2hex(rd.bytes())
   u.get = bin2hex(rd.bytes())
   u.donor = rd.string()
+  u.height = rd.number()
+  u.hash = bin2hex(rd.bytes())
+  u.timestamp = rd.number()
   u.confirmed = rd.bool()
+  u.confirmHash = bin2hex(rd.bytes())
   return u
+}
+
+function decodeConfirm(buf: Uint8Array): ConfirmPayload {
+  const r = <ConfirmPayload>{}
+  const rd = new rlp.RLPListReader(rlp.RLPList.fromEncoded(buf))
+  r.description = rd.string()
+  r.timestamp = rd.number()
+  r.height = rd.number()
+  r.hash = bin2hex(rd.bytes())
+  return r
+}
+
+export function reset(): void{
+  localStorage.removeItem('txHash')
+}
+
+export async function getHashByHeight(height: number): Promise<string>{
+  const r = await axios.get(`/rpc/block/${height}`)
+  return r.data.data.hash
 }

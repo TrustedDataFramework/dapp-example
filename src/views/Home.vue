@@ -38,7 +38,7 @@
           <span class="col-sm-6">{{ tip2 }}</span>
         </div>
         <div class="text-center mt-2">
-          <button class="btn btn-outline-secondary btn-sm" id="reset">
+          <button class="btn btn-outline-secondary btn-sm" id="reset" @click="reset">
             重置
           </button>
         </div>
@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import { Vue, Options } from 'vue-class-component'
-import { emptyDonor, getDonor } from '@/api'
+import { emptyDonor, getDonor, reset } from '@/api'
 import { deployOnce } from '@/api/deploy'
 import { ADDRESS } from '@/api/constants'
 
@@ -73,7 +73,8 @@ export default class App extends Vue {
   }
 
   get tip2(): string {
-    return this.hasDonor ? this.donor.get : TIP
+    // return this.hasDonor ? this.donor.get : TIP
+    return 'bf0aba026e5a0e1a69094c8a0d19d905367d64cf'
   }
 
   created() {
@@ -81,15 +82,28 @@ export default class App extends Vue {
     deployOnce()
     this.tm.push(setInterval(() => this.refresh(), 500))
   }
+
   refresh() {
     getDonor().then((r) => {
-      if (r) this.hasDonor = true
-      this.donor = r || emptyDonor()
+      if (r) {
+        this.hasDonor = true
+        for(let k of Object.keys(r)){
+          if(k in this){
+            this[k] = r[k]
+          }
+        }
+        return 
+      }
+      this.hasDonor = false
     })
   }
 
-  beforeUnmount() {
+  beforeDestroy() {
     this.tm.forEach((t) => clearInterval(t))
+  }
+
+  reset(){
+    reset()
   }
 }
 </script>

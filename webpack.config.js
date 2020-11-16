@@ -89,7 +89,10 @@ module.exports = (env = {}) => ({
         hot: true,
         contentBase: path.join(__dirname, 'dist'),
         compress: true,
-        port: 9988
+        port: 9988,
+        proxy: {
+            '/rpc': 'http://localhost:7010'
+        }
     },
     plugins: [
         new VueLoader.VueLoaderPlugin(),

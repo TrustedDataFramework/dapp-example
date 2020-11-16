@@ -53,7 +53,7 @@
             </div>
             <div class="text-center">
               <button class="box-but" @click="publish" :disabled="disabled">
-                存证上链
+                {{ disabled ? '已完成存证' : '存证上链' }}
               </button>
             </div>
           </div>
@@ -66,7 +66,7 @@
 <script lang="ts">
 import { Vue, Options } from 'vue-class-component'
 import HeaderBar from '@/components/HeaderBar.vue'
-import { DonorPayload, saveDonor } from '@/api'
+import { DonorPayload, saveDonor, getDonor } from '@/api'
 
 @Options({
   name: 'Donors',
@@ -84,6 +84,27 @@ export default class Donors extends Vue implements DonorPayload {
   donor = ''
   confirmed = false
   disabled = false
+
+  tm = []
+
+  created() {
+    this.refresh()
+    this.tm.push(setInterval(() => this.refresh(), 500))
+  }
+
+  beforeDestroy() {
+    this.tm.forEach((id) => clearInterval(id))
+  }
+
+  refresh() {
+    getDonor().then((r) => {
+      if (!r) return
+      this.disabled = true
+      for (let k of Object.keys(r)) {
+        if (k in this) this[k] = r[k]
+      }
+    })
+  }
 
   publish() {
     // 校验表单
@@ -107,7 +128,15 @@ export default class Donors extends Vue implements DonorPayload {
       }
     }
     if (error) return
-    saveDonor(this)
+    saveDonor(this).then((txHash) => {
+      this.$router.push({
+        path: '/success',
+        query: {
+          txHash: txHash,
+          redirect: '/cross'
+        }
+      })
+    })
   }
 }
 </script>

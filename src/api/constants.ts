@@ -13,3 +13,7 @@ export const PRIVATE_KEY =
 export const ADDRESS = tool.publicKey2Address(
   tool.privateKey2PublicKey(PRIVATE_KEY)
 )
+
+// 红十字会的私钥
+export const CROSS_PRIAVTE_KEY =
+  'b8bcde6ea12982ff341cef358040584e0b397b51beaf0b11a45f80be9b5dfe33'

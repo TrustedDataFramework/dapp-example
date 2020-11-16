@@ -13,6 +13,7 @@ export async function deployOnce() {
   const n = await rpc
     .getNonce(ADDRESS)
     .then((r) => (typeof r === 'string' ? parseInt(r) : r))
+  console.log(n)
   if (n >= 1) return
   const bd = new TransactionBuilder(constants.POA_VERSION, PRIVATE_KEY)
   bd.nonce = '1'

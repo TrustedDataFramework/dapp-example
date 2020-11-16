@@ -31,6 +31,11 @@ const router = createRouter({
       meta: {
         title: '查询信息'
       }
+    },
+    {
+      path: '/success', // 成功提示
+      name: 'success',
+      component: () => import('@/views/Success')
     }
   ]
 })

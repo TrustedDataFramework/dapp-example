@@ -2,10 +2,10 @@
  * welfare example in assembly script
  */
 
+ export { __malloc, __change_t, __peek } from '../../node_modules/@salaku/js-sdk/lib'
+
 import {
-  Globals,
-  ABI_DATA_TYPE,
-  ___idof
+  Globals
 } from '../../node_modules/@salaku/js-sdk/lib'
 import { Store, Transaction } from '../../node_modules/@salaku/js-sdk/lib'
 import { Context, Address, log } from '../../node_modules/@salaku/js-sdk/lib'
@@ -75,8 +75,4 @@ export function getConfirmEncoded(hash: ArrayBuffer): ArrayBuffer {
 
 export function getDonorEncoded(hash: ArrayBuffer): ArrayBuffer {
   return DonorDB.DONOR_DB.get(hash)
-}
-
-export function __idof(type: ABI_DATA_TYPE): u32 {
-  return ___idof(type)
 }

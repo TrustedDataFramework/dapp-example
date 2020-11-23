@@ -2,25 +2,20 @@
 
 const path = require('path')
 const child_process = require('child_process')
-const CUR = path.resolve(__dirname)
-const asc = path.join(CUR, '../../node_modules/.bin/asc')
-const src = path.join(CUR, 'welfare.ts')
-const { compileABI } = require('@salaku/js-sdk')
 const fs = require('fs')
+let src = process.env['ENTRY'] || path.join(__dirname, 'welfare.ts')
+const { compileABI } = require('@salaku/js-sdk')
 
-// 编译合约脚本
-function main() {
-  child_process.execSync(
-    `${asc} ${src} -b ${path.relative(
-      process.cwd(),
-      path.join(CUR, 'welfare.wasm')
-    )} --debug --sourceMap`
-  )
-  const abi = compileABI(fs.readFileSync(src))
-  fs.writeFileSync(
-    path.join(CUR, 'welfare.abi.json'),
-    JSON.stringify(abi, null, 2)
-  )
-}
+src = path.relative(process.cwd(), src)
 
-main()
+const dst = src.replace(/^(.*)\.ts$/, '$1.wasm')
+let abort = '../../node_modules/@salaku/js-sdk/lib/prelude/abort'
+abort = path.relative(process.cwd(), path.join(__dirname, abort))
+const abiDist = src.replace(/^(.*)\.ts$/, '$1.abi.json')
+
+const cmd = `asc ${src} -b ${dst} --runtime none --use abort=${abort} --sourceMap --debug`
+const abi = compileABI(fs.readFileSync(src))
+fs.writeFileSync(abiDist, JSON.stringify(abi, null, 2))
+console.log(cmd)
+
+child_process.execSync(cmd)

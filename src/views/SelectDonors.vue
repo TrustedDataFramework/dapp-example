@@ -29,7 +29,7 @@
               </div>
               <div class="select-welfare-info">
                 <span>捐赠姓名：</span>
-                <span>{{d.name}}</span>
+                <span>{{ d.name }}</span>
               </div>
               <div class="select-welfare-info">
                 <span>捐赠内容：</span>
@@ -41,7 +41,7 @@
               </div>
               <div class="select-welfare-info">
                 <span>捐赠地址：</span>
-                <span>{{d.address}}</span>
+                <span>{{ d.address }}</span>
               </div>
               <div class="select-welfare-info">
                 <span>捐赠机构：</span>
@@ -53,7 +53,7 @@
               </div>
               <div class="select-welfare-block" style="margin-top: 40px">
                 <span>区块高度：</span>
-                <span>{{heights[idx]}}</span>
+                <span>{{ heights[idx] }}</span>
               </div>
               <div class="select-welfare-block">
                 <span>区块哈希：</span>
@@ -81,7 +81,13 @@
 <script lang="ts">
 import { Vue, Options } from 'vue-class-component'
 import HeaderBar from '@/components/HeaderBar'
-import { emptyConfirm, emptyDonor, getConfirm, getDonor, getHashByHeight } from '@/api'
+import {
+  emptyConfirm,
+  emptyDonor,
+  getConfirm,
+  getDonor,
+  getHashByHeight
+} from '@/api'
 
 @Options({
   components: {
@@ -100,23 +106,23 @@ export default class SelectDonors extends Vue {
   d = emptyDonor()
   c = emptyConfirm()
 
-  created(){
+  created() {
     this.refresh()
   }
 
-  refresh(){
-    getDonor().then(r => {
+  refresh() {
+    getDonor().then((r) => {
       this.d = r
       this.heights[0] = r.height
       this.txHashes[0] = r.hash
-      getHashByHeight(r.height).then(h => this.blockHashes[0] = h)
+      getHashByHeight(r.height).then((h) => (this.blockHashes[0] = h))
     })
 
-    getConfirm().then(c => {
+    getConfirm().then((c) => {
       this.c = c
       this.heights[1] = c.height
       this.txHashes[1] = c.hash
-      getHashByHeight(c.height).then(h => this.blockHashes[1] = h)
+      getHashByHeight(c.height).then((h) => (this.blockHashes[1] = h))
     })
   }
 }

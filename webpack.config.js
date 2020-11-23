@@ -68,9 +68,12 @@ module.exports = (env = {}) => ({
                 ],
             },
             {
-                test: /\.wasm$/,
+                test: [/welfare\.(wasm|abi.json|wasm.map)$/, /tds-sdk.min.js(.map)?$/],
                 type: 'javascript/auto',
-                loader: 'arraybuffer-loader',
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]'
+                }
             }                         
         ]
     },
@@ -108,7 +111,8 @@ module.exports = (env = {}) => ({
     ],
     externals: {
         '@salaku/js-sdk': 'tdsSDK',
-        vue: 'Vue'
+        vue: 'Vue',
+        'vue-router': 'VueRouter'
     },
     watchOptions: {
         ignored: /node_modules/

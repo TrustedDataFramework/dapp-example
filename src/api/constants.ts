@@ -1,17 +1,38 @@
-import tool = require('@salaku/js-sdk')
-import abi = require('@/contracts/welfare.abi.json')
+import { ABI, VirtualMachine, RPC, publicKey2Address, privateKey2PublicKey, Contract, hex2bin, bin2hex} from '@salaku/js-sdk'
+import abi from '@/contracts/welfare.abi.json'
+import axios from 'axios'
 
-export const rpc = new tool.RPC(location.hostname, '7010')
+export function getABI(): Promise<ABI[]>{
+  return axios.get(<any> abi).then(r =>r.data)
+}
+
+export const vm = (function(){
+  const data = localStorage.getItem('vm')
+  if(!data)
+    return new VirtualMachine()
+  // @ts-ignore  
+
+  return VirtualMachine.fromDump(hex2bin(data).buffer)  
+})()
+
+export function persistVM(){
+  localStorage.setItem('vm', bin2hex(vm.dump()))
+}
+
+export const rpc = new RPC(location.hostname, '7010')
 export const CONTRACT_ADDRESS = '664ac90d498a460accf9feee8994d93981998c1b'
-export const CONTRACT = new tool.Contract(CONTRACT_ADDRESS, abi)
+
+export async function getContract() {
+  return new Contract(CONTRACT_ADDRESS, await getABI())
+}
 
 // 捐赠人的私钥
 export const PRIVATE_KEY =
   'f00df601a78147ffe0b84de1dffbebed2a6ea965becd5d0bd7faf54f1f29c6b5'
 
 // 捐赠人的地址
-export const ADDRESS = tool.publicKey2Address(
-  tool.privateKey2PublicKey(PRIVATE_KEY)
+export const ADDRESS = publicKey2Address(
+  privateKey2PublicKey(PRIVATE_KEY)
 )
 
 // 红十字会的私钥

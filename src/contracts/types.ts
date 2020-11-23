@@ -45,6 +45,8 @@ export class Donor {
     this.address = address
     this.get = get
     this.donor = donor
+    this.txHash = new ArrayBuffer(0)
+    this.confirmHash = new ArrayBuffer(0)
   }
 
   // 从 rlp 解码

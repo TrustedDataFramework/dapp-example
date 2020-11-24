@@ -1,7 +1,7 @@
-import { rlp, bin2hex, hex2bin, publicKey2Address, privateKey2PublicKey, TransactionBuilder, constants, TX_STATUS} from '@salaku/js-sdk'
-import { rpc, PRIVATE_KEY, CROSS_PRIAVTE_KEY, vm, ADDRESS, CONTRACT_ADDRESS, persistVM } from '@/api/constants'
+import { rlp, bin2hex, hex2bin, publicKey2Address, privateKey2PublicKey, TransactionBuilder, constants, TX_STATUS } from '@salaku/js-sdk'
+import { rpc, PRIVATE_KEY, CROSS_PRIAVTE_KEY, vm, ADDRESS, CONTRACT_ADDRESS, persistVM, ENV, getContract } from '@/api/constants'
 import { sm3 } from '@salaku/sm-crypto'
-
+import axios from 'axios'
 
 async function syncNonce(
   bd: TransactionBuilder
@@ -103,35 +103,42 @@ export interface ConfirmPayload {
 
 // 捐赠人发送合约捐赠事务
 export async function saveDonor(payload: DonorPayload): Promise<string> {
-  // let builder = new TransactionBuilder(
-  //   constants.POA_VERSION,
-  //   PRIVATE_KEY
-  // )
-  // builder = await syncNonce(builder)
-  // const tx = builder.buildContractCall(CONTRACT, 'saveDonor', <any>payload, 0)
-  // await rpc.sendAndObserve(tx, TX_STATUS.INCLUDED)
-  // const h = tx.getHash()
-  // localStorage.setItem('txHash', h)
-  // return h
-  const txHash = (await vm.call(ADDRESS, CONTRACT_ADDRESS, 'saveDonor', <any> payload)).transactionHash
-  localStorage.setItem('txHash', txHash)  
+  const c = await getContract()
+  if (ENV === 'prod') {
+    let builder = new TransactionBuilder(
+      constants.POA_VERSION,
+      PRIVATE_KEY
+    )
+    builder = await syncNonce(builder)
+    const tx = builder.buildContractCall(c, 'saveDonor', <any>payload, 0)
+    await rpc.sendAndObserve(tx, TX_STATUS.INCLUDED)
+    const h = tx.getHash()
+    localStorage.setItem('txHash', h)
+    return h
+  }
+  const txHash = (await vm.call(ADDRESS, CONTRACT_ADDRESS, 'saveDonor', <any>payload)).transactionHash
+  localStorage.setItem('txHash', txHash)
   persistVM()
   return txHash
 }
 
 // 红十字会发送确认事务
 export async function saveConfirm(description: string): Promise<string> {
-  // let bd = new TransactionBuilder(
-  //   constants.POA_VERSION,
-  //   CROSS_PRIAVTE_KEY
-  // )
-  // bd = await syncNonce(bd)
-  // const tx = bd.buildContractCall(CONTRACT, 'saveConfirm', {
-  //   hash: localStorage.getItem('txHash'),
-  //   description: description
-  // })
-  // await rpc.sendAndObserve(tx, TX_STATUS.INCLUDED)
-  // return tx.getHash()
+  const c = await getContract()
+  if (ENV === 'prod') {
+    let bd = new TransactionBuilder(
+      constants.POA_VERSION,
+      CROSS_PRIAVTE_KEY
+    )
+    bd = await syncNonce(bd)
+    const tx = bd.buildContractCall(c, 'saveConfirm', {
+      hash: localStorage.getItem('txHash'),
+      description: description
+    })
+    await rpc.sendAndObserve(tx, TX_STATUS.INCLUDED)
+    return tx.getHash()
+  }
+
   const h = (await vm.call(privateKey2PublicKey(CROSS_PRIAVTE_KEY), CONTRACT_ADDRESS, 'saveConfirm', {
     hash: localStorage.getItem('txHash'),
     description: description
@@ -143,19 +150,21 @@ export async function saveConfirm(description: string): Promise<string> {
 export async function getConfirm(): Promise<ConfirmPayload> {
   const d = await getDonor()
   if (!d || !d.confirmed) return null
-  const r = hex2bin(
-    <string>await vm.view(CONTRACT_ADDRESS, 'getConfirmEncoded', d.confirmHash)
-  )
-  return decodeConfirm(r)
+
+  const r = ENV === 'prod' ?
+    await rpc.viewContract(await getContract(), 'getConfirmEncoded', d.confirmHash)
+    : await vm.view(CONTRACT_ADDRESS, 'getConfirmEncoded', d.confirmHash)
+  return decodeConfirm(hex2bin(r))
 }
 
 export async function getDonor(): Promise<DonorPayload> {
   const h = localStorage.getItem('txHash')
   if (!h) return null
-  const r = hex2bin(
-    <string>await vm.view(CONTRACT_ADDRESS, 'getDonorEncoded', h)
-  )
-  return decodeDonor(r)
+  const r: string = ENV === 'prod' ?
+    await rpc.viewContract(await getContract(), 'getDonorEncoded', h) :
+    await vm.view(CONTRACT_ADDRESS, 'getDonorEncoded', h)
+
+  return decodeDonor(hex2bin(r))
 }
 
 function decodeDonor(buf: Uint8Array): DonorPayload {
@@ -192,7 +201,9 @@ export function reset(): void {
 }
 
 export async function getHashByHeight(height: number): Promise<string> {
-  // const r = await axios.get(`/rpc/block/${height}`)
-  // return r.data.data.hash
+  if (ENV === 'prod') {
+    const r = await axios.get(`/rpc/block/${height}`)
+    return r.data.data.hash
+  }
   return Promise.resolve(sm3(rlp.encode(height)))
 }

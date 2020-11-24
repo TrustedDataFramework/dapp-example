@@ -2,8 +2,23 @@ import { ABI, VirtualMachine, RPC, publicKey2Address, privateKey2PublicKey, Cont
 import abi from '@/contracts/welfare.abi.json'
 import axios from 'axios'
 
-export function getABI(): Promise<ABI[]>{
-  return axios.get(<any> abi).then(r =>r.data)
+import wasm from '@/contracts/welfare.wasm'
+
+let abiCache
+
+export async function getABI(): Promise<ABI[]>{
+  if (abiCache)
+    return abiCache
+  abiCache = await axios.get(<any> abi).then(r =>r.data)
+  return abiCache
+}
+
+// dev 环境下使用假节点
+export const ENV: 'dev' | 'prod' = localStorage.getItem('env') === 'dev' ? 'dev' : 'prod'
+
+export async function getContractBin(): Promise<Uint8Array>{
+  const r = await fetch(wasm)
+  return new Uint8Array(await r.arrayBuffer())
 }
 
 export const vm = (function(){

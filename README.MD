@@ -21,3 +21,21 @@ node src/contracts/compile.js
 ```sh
 npm run build
 ```
+
+## 环境切换
+
+默认连接真实节点
+
+## 连接假节点 切换到 dev 模式
+
+```js
+localStorage.clear()
+localStorage.setItem('env', 'dev')
+```
+
+## 连接真实节点，切换到  prod 模式
+
+```js
+localStorage.clear()
+localStorage.setItem('env', 'prod')
+```
